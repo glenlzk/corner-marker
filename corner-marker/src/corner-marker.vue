@@ -7,6 +7,29 @@
     },
     props: {
       content: String,
+      commmentClass: String,
+      commentType: {
+        default: 'angle',
+        validator(val) {
+          return ['angle', 'dot'].indexOf(val) !== -1;
+        }
+      },
+      placement: {
+        default: 'top-right',
+        validator(val) {
+          return ['top-left', 'top-right', 'bottom-left', 'bottom-right'] !== -1;
+        }
+      },
+      color: String
+    },
+    computed: {
+      cornerColor () {
+        let pos = this.placement.split('-')[0];
+        if(!~['top', 'bottom'].indexOf(pos)) return;
+        return {
+          [`border-${pos}-color`]: this.color
+        }
+      }
     },
     beforeCreate() {
         this.corner = new Vue({
@@ -26,11 +49,20 @@
               effect="dark" 
               placement="top">
               <template slot="content">{this.$slots.content || this.content}</template>
-              <span ref="cornerDiv" class="triangle bottom-right"></span>
+              <span ref="cornerDiv" 
+                class={
+                  [
+                    this.placement,
+                    this.commentType? `triangle-${this.commentType}` : '',
+                    this.commmentClass
+                  ]}
+                style={this.cornerColor}
+                >
+                </span>
           </el-tooltip>
         );
       }
-
+      // triangle bottom-right
       // this.corner.$nextTick(() => {
       //   console.log(this.$refs.cornerDiv);          //  <span ref="cornerDiv"
       //   console.log(this.corner.$refs.cornerDiv);   // undefined
@@ -50,6 +82,8 @@
       if(this.$el.nodeType === 1) {
         this.appendDom(this.$el);
       }
+
+      console.log(this.cornerColor);
       
     },
     methods: {
